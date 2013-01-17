@@ -1,0 +1,7 @@
+name = Webform Countdown
+description = Adds a textarea with a dynamic character count that updates as users type.
+core = 7.x
+version = 1.0-beta1
+package = Webform
+dependencies[] = webform
+dependencies[] = libraries
