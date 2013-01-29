@@ -40,7 +40,9 @@ function _webform_defaults_countdown() {
     'value' => '',
     'mandatory' => 0,
     'extra' => array(
+      'type' => 'char',
       'max' => '140',
+      'message' => 'characters remaining',
       'cols' => '',
       'rows' => '',
       'title_display' => 0,
@@ -78,6 +80,20 @@ function _webform_edit_countdown($component) {
     '#rows' => 5,
     '#weight' => 0,
   );
+  $form['validation']['type'] = array(
+    '#type' => 'select',
+    '#title' => t('Type'),
+    '#description' => t('Determines whether the counter counts chracters or words.'),
+    '#default_value' => $component['extra']['type'],
+    '#options' => array(
+      'char' => t('Character'),
+      'word' => t('Word'),
+    ),
+    '#multiple' => FALSE,
+    '#weight' => 4,
+    '#parents' => array('extra', 'type'),
+    '#weight' => 1,
+  );
   $form['validation']['max'] = array(
     '#type' => 'textfield',
     '#title' => t('Maximum'),
@@ -86,6 +102,15 @@ function _webform_edit_countdown($component) {
     '#size' => 5,
     '#maxlength' => 10,
     '#parents' => array('extra', 'max'),
+    '#weight' => 2,
+  );
+  $form['validation']['message'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Message'),
+    '#default_value' => $component['extra']['message'],
+    '#description' => t('Message that gets displayed alongside counter.'),
+    '#parents' => array('extra', 'message'),
+    '#weight' => 3,
   );
   $form['display']['cols'] = array(
     '#type' => 'textfield',
@@ -132,7 +157,7 @@ function _webform_render_countdown($component, $value = NULL, $filter = TRUE) {
   $node = isset($component['nid']) ? node_load($component['nid']) : NULL;
 
   // Add JS for counter.
-  _webform_countdown_add_counter($component['extra']['max']);
+  _webform_countdown_add_counter($component['form_key'], $component['extra']['max'], $component['extra']['type'], $component['extra']['message']);
 
   $element = array(
     '#type' => 'textarea',
@@ -180,6 +205,16 @@ function _webform_display_countdown($component, $value, $format = 'html') {
     '#value' => $value[0],
     '#translatable' => array('title'),
   );
+}
+
+
+/**
+ * Custom Theme function for collected countdown data.
+ */
+function theme_webform_display_countdown($variables) {
+  $element = $variables['element'];
+  $value = $element['#value'];
+  return $value;
 }
 
 /**
@@ -253,19 +288,20 @@ function webform_countdown_validate($element, $form_state, $form) {
 /**
  * Add JS to implement counter.
  */
-function _webform_countdown_add_counter($max = 140) {
+function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $message = 'characters remaining') {
+
 // Ensure libraries module is in place.
   if (module_exists('libraries')) {
-    if ($path = libraries_get_path('simplycountable')) {
+    if ($path = libraries_get_path('word-and-character-counter')) {
       // Add simply countable jQuery plugin if it exists.
-      drupal_add_js($path . '/jquery.simplyCountable.js');
+      drupal_add_js($path . '/word-and-character-counter.js');
 
       // Add inline JS to handle counter.
-      drupal_add_js('jQuery(document).ready(function () { jQuery("#edit-submitted-tests").before("' . t('You have <span id=\"webform-counter\"></span> characters remaining.') . '"); jQuery("#edit-submitted-tests").simplyCountable({ counter: "#webform-counter", maxCount: ' . $max . ' }); });', 'inline');
+      drupal_add_js('jQuery(document).ready(function () { jQuery("#edit-submitted-' . $form_key . '").counter({ type: "' . $type . '", goal: ' . $max . ', msg: "' . t($message) . '", append: false }); });', 'inline');
     }
     else {
       // Display warning if plugin file not found.
-      drupal_set_message(t('Simply Countable library not found in libraries/simplycountable.  Please download jquery.simplyCountable.js from https://github.com/aaronrussell/jquery-simply-countable and add it to sites/all/libraries/simplycountable or sites/SITENAME/libraries/simplycountable.'), 'warning');
+      drupal_set_message(t('Word and Character Counter plugin not found in libraries/word-and-character-counter.  Please download word-and-character-counter.js from http://qwertypants.github.com/jQuery-Word-and-Character-Counter-Plugin/ and add it to sites/all/libraries/word-and-character-counter.js or sites/SITENAME/libraries/word-and-character-counter.js'), 'warning');
     }
   }
 }
