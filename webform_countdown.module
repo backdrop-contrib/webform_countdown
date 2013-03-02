@@ -273,8 +273,8 @@ function _webform_csv_data_countdown($component, $export_options, $value) {
  * Validate input against maximum characters.
  */
 function webform_countdown_validate($element, $form_state, $form) {
-  // Check to ensure value has been entered
-  if (!empty($element['#value'])) {
+  // Check to ensure value has been entered and that we're counting characters rather than words.
+  if (!empty($element['#value']) && $element['#webform_component']['extra']['type'] == 'char') { 
     // Check to ensure character count is less than or equal to max.
     if (strlen($element['#value']) > $element['#webform_component']['extra']['max']) {
       form_error($element, t('The ' . $element['#title'] . ' field should contain a maximum of ' . $element['#webform_component']['extra']['max'] . ' characters.'));
@@ -282,7 +282,7 @@ function webform_countdown_validate($element, $form_state, $form) {
   }
 
   // Add JS for counter.
-  _webform_countdown_add_counter($element['#webform_component']['extra']['max']);
+  _webform_countdown_add_counter($element['#webform_component']['form_key'],$element['#webform_component']['extra']['max'], $element['#webform_component']['extra']['type'], $element['#webform_component']['extra']['message']);
 }
 
 /**
