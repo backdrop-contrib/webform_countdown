@@ -5,7 +5,9 @@
  * Webform countdown code module.
  */
 
-// Define comonent and its basic capabilities
+/**
+ *  Define comonent and its basic capabilities.
+ */
 function webform_countdown_webform_component_info() {
   $components = array();
   $components['countdown'] = array(
@@ -30,7 +32,7 @@ function webform_countdown_webform_component_info() {
 
 /**
  * Implements _webform_defaults_component().
- */ 
+ */
 function _webform_defaults_countdown() {
   return array(
     'name' => '',
@@ -207,7 +209,6 @@ function _webform_display_countdown($component, $value, $format = 'html') {
   );
 }
 
-
 /**
  * Custom Theme function for collected countdown data.
  */
@@ -274,23 +275,22 @@ function _webform_csv_data_countdown($component, $export_options, $value) {
  */
 function webform_countdown_validate($element, $form_state, $form) {
   // Check to ensure value has been entered and that we're counting characters rather than words.
-  if (!empty($element['#value']) && $element['#webform_component']['extra']['type'] == 'char') { 
+  if (!empty($element['#value']) && $element['#webform_component']['extra']['type'] == 'char') {
     // Check to ensure character count is less than or equal to max.
     if (strlen($element['#value']) > $element['#webform_component']['extra']['max']) {
-      form_error($element, t('The ' . $element['#title'] . ' field should contain a maximum of ' . $element['#webform_component']['extra']['max'] . ' characters.'));
+      form_error($element, t('The @title field should contain a maximum of @max characters.', array('@title' => $element['#title'], '@max' => $element['#webform_component']['extra']['max'])));
     }
   }
 
   // Add JS for counter.
-  _webform_countdown_add_counter($element['#webform_component']['form_key'],$element['#webform_component']['extra']['max'], $element['#webform_component']['extra']['type'], $element['#webform_component']['extra']['message']);
+  _webform_countdown_add_counter($element['#webform_component']['form_key'], $element['#webform_component']['extra']['max'], $element['#webform_component']['extra']['type'], $element['#webform_component']['extra']['message']);
 }
 
 /**
  * Add JS to implement counter.
  */
 function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $message = 'characters remaining') {
-
-// Ensure libraries module is in place.
+  // Ensure libraries module is in place.
   if (module_exists('libraries')) {
     if ($path = libraries_get_path('word-and-character-counter')) {
       // Add simply countable jQuery plugin if it exists.
@@ -301,7 +301,7 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
     }
     else {
       // Display warning if plugin file not found.
-      drupal_set_message(t('Word and Character Counter plugin not found in libraries/word-and-character-counter.  Please download word-and-character-counter.js from http://qwertypants.github.com/jQuery-Word-and-Character-Counter-Plugin/ and add it to sites/all/libraries/word-and-character-counter.js or sites/SITENAME/libraries/word-and-character-counter.js'), 'warning');
+      drupal_set_message(t('Word and Character Counter plugin not found in libraries directory. Please download word-and-character-counter.js from http://qwertypants.github.com/jQuery-Word-and-Character-Counter-Plugin/ and add it to sites/all/libraries/word-and-character-counter/word-and-character-counter.js or sites/SITENAME/libraries/word-and-character-counter/word-and-character-counter.js'), 'warning');
     }
   }
 }
