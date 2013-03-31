@@ -6,7 +6,7 @@
  */
 
 /**
- *  Define comonent and its basic capabilities.
+ *  Define component and its basic capabilities.
  */
 function webform_countdown_webform_component_info() {
   $components = array();
@@ -214,8 +214,11 @@ function _webform_display_countdown($component, $value, $format = 'html') {
  */
 function theme_webform_display_countdown($variables) {
   $element = $variables['element'];
-  $value = $element['#value'];
-  return $value;
+  $output = $element['#format'] == 'html' ? nl2br(check_plain($element['#value'])) : $element['#value'];
+  if (drupal_strlen($output) > 80) {
+    $output = ($element['#format'] == 'html') ? '<div class="webform-long-answer">' . $output . '</div>' : $output;
+  }
+  return $output !== '' ? $output : ' ';
 }
 
 /**
@@ -296,8 +299,9 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
       // Add simply countable jQuery plugin if it exists.
       drupal_add_js($path . '/word-and-character-counter.js');
 
-      // Add inline JS to handle counter.
-      drupal_add_js('jQuery(document).ready(function () { jQuery("#edit-submitted-' . $form_key . '").counter({ type: "' . $type . '", goal: ' . $max . ', msg: "' . t($message) . '", append: false }); });', 'inline');
+      // Add inline JS to handle counter.  
+      // Replace _ with - in component keys to match dom IDs.
+      drupal_add_js('jQuery(document).ready(function () { jQuery("#edit-submitted-' . str_replace('_', '-', $form_key) . '").counter({ type: "' . $type . '", goal: ' . $max . ', msg: "' . t($message) . '", append: false }); });', 'inline');
     }
     else {
       // Display warning if plugin file not found.
