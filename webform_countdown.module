@@ -260,7 +260,9 @@ function _webform_table_countdown($component, $value) {
  */
 function _webform_csv_headers_countdown($component, $export_options) {
   $header = array();
-  $header[0] = $component['name'];
+  $header[0] = '';
+  $header[1] = '';
+  $header[2] = $component['name'];
   return $header;
 }
 
