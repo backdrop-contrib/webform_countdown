@@ -275,11 +275,19 @@ function _webform_csv_data_countdown($component, $export_options, $value) {
  * Validate input against maximum characters.
  */
 function webform_countdown_validate($element, $form_state, $form) {
-  // Check to ensure value has been entered and that we're counting characters rather than words.
-  if (!empty($element['#value']) && $element['#webform_component']['extra']['type'] == 'char') {
-    // Check to ensure character count is less than or equal to max.
-    if (strlen($element['#value']) > $element['#webform_component']['extra']['max']) {
-      form_error($element, t('The @title field should contain a maximum of @max characters.', array('@title' => $element['#title'], '@max' => $element['#webform_component']['extra']['max'])));
+  // Check to ensure value has been entered.
+  if (!empty($element['#value'])) {
+    if ($element['#webform_component']['extra']['type'] == 'char') {
+      // Check to ensure character count is less than or equal to max.
+      if (strlen($element['#value']) > $element['#webform_component']['extra']['max']) {
+        form_error($element, t('The @title field should contain a maximum of @max characters.', array('@title' => $element['#title'], '@max' => $element['#webform_component']['extra']['max'])));
+      }
+    }
+    else if ($element['#webform_component']['extra']['type'] == 'word') {
+      // Check to ensure word count is less than or equal to max.
+      if (_webform_countdown_count_words($element['#value']) > $element['#webform_component']['extra']['max']) {
+        form_error($element, t('The @title field should contain a maximum of @max words.', array('@title' => $element['#title'], '@max' => $element['#webform_component']['extra']['max'])));
+      }
     }
   }
 
@@ -319,4 +327,18 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
   );
 
   return $js;
+}
+
+/**
+ * Count the number of words in a value.
+ *
+ * Strip HTML first.
+ */
+function _webform_countdown_count_words($val) {
+  $val = strip_tags($val);
+  // Replace entities representing spaces with actual spaces.
+  $val = str_replace('&nbsp;', ' ', $val);
+  $val = str_replace('&#160;', ' ', $val);
+
+  return str_word_count($val);
 }
