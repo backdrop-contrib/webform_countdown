@@ -296,12 +296,12 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
   // Ensure libraries module is in place.
   if (module_exists('libraries')) {
     if ($path = libraries_get_path('word-and-character-counter')) {
+      drupal_add_js(array('webform_countdown-'.$form_key => array('form_key' => $form_key, 'max' => $max, 'message' => $message)), 'setting');
       // Add simply countable jQuery plugin if it exists.
       drupal_add_js($path . '/word-and-character-counter.js');
 
-      // Add inline JS to handle counter.  
-      // Replace _ with - in component keys to match dom IDs.
-      drupal_add_js('jQuery(document).ready(function () { jQuery("#edit-submitted-' . str_replace('_', '-', $form_key) . '").counter({ type: "' . $type . '", goal: ' . $max . ', msg: "' . t($message) . '", append: false }); });', 'inline');
+      // Add JS for counter.
+      drupal_add_js('jQuery(document).ready(function () { jQuery(\'textarea[id$="'. str_replace('_', '-', $form_key) .'"]\').counter({ type: "' . $type . '", goal: ' . $max . ', msg: "' . t($message) . '", append: false }); });', 'inline');
     }
     else {
       // Display warning if plugin file not found.
