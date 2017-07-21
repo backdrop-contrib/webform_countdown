@@ -263,7 +263,7 @@ function _webform_analysis_countdown($component, $sids = array(), $single = FALS
   foreach ($result as $data) {
     if (drupal_strlen(trim($data['data'])) > 0) {
       $nonblanks++;
-      $wordcount += str_word_count(trim($data['data']));
+      $wordcount += _webform_countdown_count_words($data['data']);
     }
     $submissions++;
   }
@@ -376,5 +376,5 @@ function _webform_countdown_count_words($val) {
   $val = str_replace('&nbsp;', ' ', $val);
   $val = str_replace('&#160;', ' ', $val);
 
-  return str_word_count($val);
+  return count(explode(' ', trim(preg_replace('/\s+/', ' ', $val))));
 }
