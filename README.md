@@ -8,7 +8,7 @@ Installation
 
 - Install this module using [the official Backdrop CMS instructions](  https://backdropcms.org/guide/modules).
 
-- Download [jquery.word-and-character-counter.js](https://github.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin) ([unminified](https://raw.githubusercontent.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin/master/jquery.word-and-character-counter.js) or [minified](https://raw.githubusercontent.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin/master/jquery.word-and-character-counter.min.js)) and add it to the lib folder of this module, so that the module directory looks like this:
+- Download [jquery.word-and-character-counter.js](https://github.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin) ([unminified](https://raw.githubusercontent.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin/master/jquery.word-and-character-counter.js) or [minified](https://raw.githubusercontent.com/qwertypants/jQuery-Word-and-Character-Counter-Plugin/master/jquery.word-and-character-counter.min.js)) and add it to the lib folder of the module, so that the module directory looks like this:
 
 ```
 webform_countdown
