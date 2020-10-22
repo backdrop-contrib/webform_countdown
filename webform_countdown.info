@@ -1,7 +1,7 @@
 name = Webform Countdown
 description = Adds a textarea with a dynamic character or word countdown that updates as users type.
-core = 7.x
+backdrop = 1.x
+type = module
 package = Webform
 
 dependencies[] = webform
-dependencies[] = libraries

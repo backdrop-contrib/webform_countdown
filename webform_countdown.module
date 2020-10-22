@@ -1,9 +1,9 @@
 <?php
-
 /**
  * @file
  * Webform countdown code module.
  */
+
 
 /**
  *  Define component and its basic capabilities.
@@ -29,6 +29,22 @@ function webform_countdown_webform_component_info() {
   );
   return $components;
 }
+
+
+/**
+ * Implements hook_webform_validator_alter().
+ * Add support for webform validations.
+ * @see https://www.drupal.org/project/webform_countdown/issues/2995742
+ */
+function webform_countdown_webform_validator_alter(&$validators) {
+  # Add countdown validation to all fields with textarea validations.
+  foreach (array_keys($validators) as $validator) {
+    if (in_array('textarea', $validators[$validator]['component_types'])) {
+      $validators[$validator]['component_types'][] = 'countdown';
+    }
+  }
+}
+
 
 /**
  * Implements _webform_defaults_component().
@@ -60,6 +76,7 @@ function _webform_defaults_countdown() {
   );
 }
 
+
 /**
  * Implements _webform_theme_component().
  */
@@ -71,6 +88,7 @@ function _webform_theme_countdown() {
   );
 }
 
+
 /**
  * Implements _webform_edit_component().
  */
@@ -80,7 +98,7 @@ function _webform_edit_countdown($component) {
     '#type' => 'textarea',
     '#title' => t('Default value'),
     '#default_value' => $component['value'],
-    '#description' => t('The default value of the field.') . theme('webform_token_help'),
+    '#description' => t('The default value of the field.') . ' ' . theme('webform_token_help'),
     '#cols' => 60,
     '#rows' => 5,
     '#weight' => 0,
@@ -159,8 +177,9 @@ function _webform_edit_countdown($component) {
     '#default_value' => $component['extra']['disabled'],
     '#parents' => array('extra', 'disabled'),
   );
-  return $form;;
+  return $form;
 }
+
 
 /**
  * Implements _webform_render_component().
@@ -173,7 +192,7 @@ function _webform_render_countdown($component, $value = NULL, $filter = TRUE) {
     '#title' => $filter ? _webform_filter_xss($component['name']) : $component['name'],
     '#title_display' => $component['extra']['title_display'] ? $component['extra']['title_display'] : 'before',
     '#default_value' => $filter ? webform_replace_tokens($component['value'], $node, NULL, NULL, FALSE) : $component['value'],
-    '#required' => $component['required'],
+    '#required' => $component['mandatory'],
     '#weight' => $component['weight'],
     '#description' => $filter ? _webform_filter_descriptions($component['extra']['description'], $node) : $component['extra']['description'],
     '#rows' => !empty($component['extra']['rows']) ? $component['extra']['rows'] : 5,
@@ -210,6 +229,7 @@ function _webform_render_countdown($component, $value = NULL, $filter = TRUE) {
   return $element;
 }
 
+
 /**
  * Implements _webform_display_component().
  */
@@ -226,17 +246,20 @@ function _webform_display_countdown($component, $value, $format = 'html', $submi
   );
 }
 
+
 /**
  * Custom Theme function for collected countdown data.
  */
 function theme_webform_display_countdown($variables) {
+  // TODO: Should this theme webform_display_countdown be declared in hook_theme()?
   $element = $variables['element'];
   $output = $element['#format'] == 'html' ? nl2br(check_plain($element['#value'])) : $element['#value'];
-  if (drupal_strlen($output) > 80) {
+  if (backdrop_strlen($output) > 80) {
     $output = ($element['#format'] == 'html') ? '<div class="webform-long-answer">' . $output . '</div>' : $output;
   }
   return $output !== '' ? $output : ' ';
 }
+
 
 /**
  * Implements _webform_analysis_component().
@@ -261,7 +284,7 @@ function _webform_analysis_countdown($component, $sids = array(), $single = FALS
 
   $result = $query->execute();
   foreach ($result as $data) {
-    if (drupal_strlen(trim($data['data'])) > 0) {
+    if (backdrop_strlen(trim($data['data'])) > 0) {
       $nonblanks++;
       $wordcount += _webform_countdown_count_words($data['data']);
     }
@@ -271,7 +294,7 @@ function _webform_analysis_countdown($component, $sids = array(), $single = FALS
   $rows[0] = array(t('Left Blank'), ($submissions - $nonblanks));
   $rows[1] = array(t('User entered value'), $nonblanks);
 
-  $other[] = array(t('Average submission length in words (ex blanks)'), ($nonblanks != 0 ? number_format($wordcount/$nonblanks, 2) : '0'));
+  $other[] = array(t('Average submission length in words (ex blanks)'), ($nonblanks != 0 ? number_format($wordcount / $nonblanks, 2) : '0'));
 
   return array(
     'table_rows' => $rows,
@@ -279,12 +302,14 @@ function _webform_analysis_countdown($component, $sids = array(), $single = FALS
   );
 }
 
+
 /**
  * Implements _webform_table_component().
  */
 function _webform_table_countdown($component, $value) {
   return empty($value[0]) ? '' : check_plain($value[0]);
 }
+
 
 /**
  * Implements _webform_csv_headers_component().
@@ -297,12 +322,14 @@ function _webform_csv_headers_countdown($component, $export_options) {
   return $header;
 }
 
+
 /**
  * Implements _webform_csv_data_component().
  */
 function _webform_csv_data_countdown($component, $export_options, $value) {
   return empty($value[0]) ? '' : $value[0];
 }
+
 
 /**
  * Validate input against maximum characters.
@@ -319,7 +346,7 @@ function webform_countdown_validate($element, $form_state, $form) {
         form_error($element, t('The @title field should contain a maximum of @max characters.', array('@title' => $element['#title'], '@max' => $element['#webform_component']['extra']['max'])));
       }
     }
-    else if ($element['#webform_component']['extra']['type'] == 'word') {
+    elseif ($element['#webform_component']['extra']['type'] == 'word') {
       // Check to ensure word count is less than or equal to max.
       if (_webform_countdown_count_words($element['#value']) > $element['#webform_component']['extra']['max']) {
         form_error($element, t('The @title field should contain a maximum of @max words.', array('@title' => $element['#title'], '@max' => $element['#webform_component']['extra']['max'])));
@@ -330,6 +357,7 @@ function webform_countdown_validate($element, $form_state, $form) {
   $element['#attached']['js'] = array('js' => _webform_countdown_add_counter($element['#webform_component']['form_key'], $element['#webform_component']['extra']['max'], $element['#webform_component']['extra']['type'], $element['#webform_component']['extra']['message']));
 }
 
+
 /**
  * Add JS to implement counter.
  */
@@ -338,7 +366,7 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
 
   // Add Word and Character Counter library
   $js[] = array(
-    'data' => libraries_get_path('word-and-character-counter') . '/word-and-character-counter.js',
+    'data' => backdrop_get_path('module', 'webform_countdown') . '/lib/jquery.word-and-character-counter.js',
     'type' => 'file',
   );
 
@@ -350,7 +378,7 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
     'message' => $message,
   );
 
-  // Send settings to Drupal js
+  // Send settings to Backdrop js
   $js[] = array(
     'data' => array('webformCountdown' => $settings),
     'type' => 'setting',
@@ -358,12 +386,13 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
 
   // Add webform_countdown.js
   $js[] = array(
-    'data' => drupal_get_path('module', 'webform_countdown') . '/webform_countdown.js',
+    'data' => backdrop_get_path('module', 'webform_countdown') . '/webform_countdown.js',
     'type' => 'file',
   );
 
   return $js;
 }
+
 
 /**
  * Count the number of words in a value.
