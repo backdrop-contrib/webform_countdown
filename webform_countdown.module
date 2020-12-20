@@ -37,7 +37,7 @@ function webform_countdown_webform_component_info() {
  * @see https://www.drupal.org/project/webform_countdown/issues/2995742
  */
 function webform_countdown_webform_validator_alter(&$validators) {
-  # Add countdown validation to all fields with textarea validations.
+  // Add countdown validation to all fields with textarea validations.
   foreach (array_keys($validators) as $validator) {
     if (in_array('textarea', $validators[$validator]['component_types'])) {
       $validators[$validator]['component_types'][] = 'countdown';
@@ -192,7 +192,7 @@ function _webform_render_countdown($component, $value = NULL, $filter = TRUE) {
     '#title' => $filter ? _webform_filter_xss($component['name']) : $component['name'],
     '#title_display' => $component['extra']['title_display'] ? $component['extra']['title_display'] : 'before',
     '#default_value' => $filter ? webform_replace_tokens($component['value'], $node, NULL, NULL, FALSE) : $component['value'],
-    '#required' => $component['mandatory'],
+    '#required' => $component['required'],
     '#weight' => $component['weight'],
     '#description' => $filter ? _webform_filter_descriptions($component['extra']['description'], $node) : $component['extra']['description'],
     '#rows' => !empty($component['extra']['rows']) ? $component['extra']['rows'] : 5,
@@ -366,7 +366,7 @@ function _webform_countdown_add_counter($form_key, $max = 140, $type = 'char', $
 
   // Add Word and Character Counter library
   $js[] = array(
-    'data' => backdrop_get_path('module', 'webform_countdown') . '/lib/jquery.word-and-character-counter.js',
+    'data' => backdrop_get_path('module', 'webform_countdown') . '/libraries/jquery.word-and-character-counter.js',
     'type' => 'file',
   );
 
