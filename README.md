@@ -1,7 +1,7 @@
 Webform Countdown
 ======================
 
-Webform Countdown provides a textarea component for Drupal webforms with a
+Webform Countdown provides a textarea component for Backdrop webforms with a
 configurable dynamic word or character count.
 
 Installation
